@@ -70,12 +70,29 @@ void GoToPose::nav_to_pose_callback(const GoalHandleNav::WrappedResult &result)
   {
     done_flag_ = true;
 
- /*// Play the MP3 file using mpg123
-    std::string mp3_file_path = "/home/ubuntu/audiotest/R2-D2.mp3";
-    playAudio(mp3_file_path);
-  }*/ 
+ // Play the MP3 file using mpg123
+    std::string mp3_file_path = " /home/arms/computer-vision-robot-control/Audio_Files/R2D2_1.mp3";
+    std::string command = "mpg123" +mp3_file_path ;
+    
+
+    // Debugging output: Print the command being executed
+    RCLCPP_INFO(node_ptr_->get_logger(), "Executing command: %s", command.c_str());
+
+    // Execute the command and check the result
+    int result = system(command.c_str());
+
+    // Check the result and print corresponding messages
+    if (result == 0) {
+      RCLCPP_INFO(node_ptr_->get_logger(), "Audio playback successful");
+    } else {
+      // Error handling: Print an error message with the exit code
+      RCLCPP_ERROR(node_ptr_->get_logger(), "Audio playback failed with exit code: %d", result);
+    }
+  }
 }
-/*
+
+
+/* SSH pass method 
 // Implementation of the playAudio method
 void GoToPose::playAudio(const std::string &mp3_file_path)
 {
@@ -124,6 +141,5 @@ void GoToPose::playAudio(const std::string &mp3_file_path)
     {
         RCLCPP_ERROR(node_ptr_->get_logger(), "Audio playback failed with exit code: %d", WEXITSTATUS(status));
     }
-    */
-}
-
+    
+}*/
