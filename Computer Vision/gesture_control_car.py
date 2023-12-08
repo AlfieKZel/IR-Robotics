@@ -50,6 +50,8 @@ import pandas as pd
 import joblib
 from helpers import get_handedness, pre_process_hand_landmarks, get_args
 
+import subprocess
+
 
 ################CV#########################
 args = get_args()
@@ -178,6 +180,11 @@ def check_angular_limit_velocity(velocity):
     else:
         return constrain(velocity, -WAFFLE_MAX_ANG_VEL, WAFFLE_MAX_ANG_VEL)
 
+def play_mp3(file_paths):
+    try:
+        subprocess.run(["mpg123", file_paths])
+    except Exception as e:
+        print(f"An error occurred: {e}")
 
 def main():
     settings = None
@@ -205,6 +212,8 @@ def main():
         text_label_predicted = ""
         relative_distance_thumb_index = 0.0
         angle = 0.0
+        state_machine = 0
+        audio = ""
         with mp_hands.Hands(
         static_image_mode=False,
         max_num_hands=2,
@@ -434,11 +443,9 @@ def main():
                             # 0, so we will get the complementary of 1 to the module
                             module = 1 - relative_distance_thumb_index
 
-                        # state_machine = 0
-                        # msg = ""    
+                        direction = ""    
                         key = get_key(settings)
                         if text_label_predicted == 'Forward':
-                            msg = "play forward"
                             target_linear_velocity =\
                                 check_linear_limit_velocity(BURGER_MAX_LIN_VEL * relative_distance_thumb_index)
                             target_angular_velocity =\
@@ -476,10 +483,21 @@ def main():
                             if (key == '\x03'):
                                 break
                         
-                        # state_machine +=1
-                        # if state_machine == 30:
-                        #     msg = 'thing'
-                        #     state_machine =0
+                        if state_machine == 0:
+                            if target_linear_velocity <0 :
+                                play_mp3("/home/arms/computer-vision-robot-control/Audio_Files/reversing.mp3")
+                            elif target_angular_velocity > 0:
+                                print("im at left")
+                                play_mp3("/home/arms/computer-vision-robot-control/Audio_Files/turning_left.mp3")
+                            elif target_angular_velocity < 0:
+                                play_mp3("/home/arms/computer-vision-robot-control/Audio_Files/turning_right.mp3")
+                            
+                            
+
+                        elif state_machine == 30:
+                            state_machine =-1
+                        
+                        state_machine +=1
 
 
 
